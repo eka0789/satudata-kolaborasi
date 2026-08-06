@@ -22,7 +22,7 @@ Sebelum menghasilkan kode, AI wajib membaca dokumen konteks di direktori `.ai/` 
 12. `workflow.md`
 13. `definition-of-done.md`
 14. `business-rules.md`
-15. `domain-*.md` (Dokumen Spesifikasi Domain Khusus jika ada, contoh: `domain-kemenag-pesantren.md`)
+15. `domain-*.md` (Dokumen Spesifikasi Domain Khusus jika ada, contoh: `domain-satudata-indonesia.md`)
 16. `agent-memory.md`
 
 ---
@@ -33,7 +33,7 @@ Jika terjadi kontradiksi antar dokumen, tingkat hierarki resolusi keputusan adal
 
 1. `domain-*.md` & `business-rules.md` (Spesifikasi Domain & Regulasi Pemerintah)
 2. `agent-memory.md` (Keputusan Arsitektur Terbaru)
-3. `architecture.md` (Arsitektur Feature-First Monorepo)
+3. `architecture.md` (Arsitektur Single-App + Convex)
 4. `coding-standards.md` (Standar Kualitas Kode)
 
 ---
@@ -41,5 +41,5 @@ Jika terjadi kontradiksi antar dokumen, tingkat hierarki resolusi keputusan adal
 ## ⛔ Larangan Keras Bagi AI Assistant
 
 1. Dilarang menghasilkan kode parsial, potongan kode tanpa konteks, atau kode yang menyisakan `// TODO`.
-2. Dilarang mengubah stack teknologi dasar (pnpm, Turborepo, Hono, React, Drizzle, Supabase, Tailwind, shadcn/ui).
+2. Dilarang mengubah stack teknologi dasar (npm, React, Vite, Tailwind CSS, shadcn/ui, Convex, ConvexAuth, Zod).
 3. Dilarang menghapus kolom audit trail atau mekanisme Soft Delete pada database.

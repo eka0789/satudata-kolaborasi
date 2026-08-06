@@ -1,53 +1,67 @@
-# AI Prompt: Create REST API Endpoint
+# AI Prompt: Create Convex API (Query & Mutation)
 
 ## Context & Purpose
-Gunakan prompt ini untuk membuat REST API endpoint baru menggunakan Hono, Zod Validation, Drizzle ORM, Supabase Auth, dan standar JSON Response Enterprise.
+Gunakan prompt ini untuk membuat API backend Convex — seluruh operasi data (CRUD) melalui Convex `query`, `mutation`, dan (jika perlu) `action`. Semua akses data melewati Convex, bukan REST.
 
 ---
 
 ## 🤖 AI Instructions
 
-Saat membuat REST API baru, jalankan urutan langkah berikut:
+Saat membuat API backend Convex, ikuti pola berikut:
 
-### Step 1: Definisikan Kontrak Endpoint (API Contract)
-Jelaskan terlebih dahulu:
-- **HTTP Method & URL Path**: contoh: `GET /api/v1/employees`, `POST /api/v1/employees`.
-- **Persyaratan Otorisasi**: Peran & Permission yang dibutuhkan (contoh: `pegawai.read`, `pegawai.create`).
-- **Skema Input**: Query String, Path Params, dan JSON Body.
-- **Skema Output**: Struktur respons JSON sukses dan error.
-
-### Step 2: Hasilkan Skema Zod (`schema.ts`)
-Tulis skema validasi Zod presisi tinggi dengan pesan kesalahan ber-bahasa Indonesia:
+### Step 1: Query (Baca Data)
 ```typescript
-import { z } from 'zod';
+import { query } from "./_generated/server";
+import { v } from "convex/values";
 
-export const createEmployeeSchema = z.object({
-  nip: z.string().length(18, 'NIP harus persis 18 digit angka'),
-  name: z.string().min(3, 'Nama pegawai minimal 3 karakter'),
-  email: z.string().email('Format email tidak valid'),
-  unit_kerja_id: z.string().uuid('ID Unit Kerja tidak valid')
+export const list = query({
+  args: {
+    categoryId: v.optional(v.id("categories")),
+    status: v.optional(v.union(v.literal("draft"), v.literal("active"))),
+  },
+  handler: async (ctx, args) => {
+    // Filter soft-delete
+    let base = ctx.db
+      .query("projects")
+      .filter((q) => q.eq(q.field("deletedAt"), undefined));
+
+    // Jika ada index yang relevan, gunakan .withIndex(); sisanya filter in-memory
+    if (args.categoryId) base = base.filter((q) => q.eq(q.field("categoryId"), args.categoryId));
+    if (args.status) base = base.filter((q) => q.eq(q.field("status"), args.status));
+
+    return await base.collect();
+  },
 });
 ```
 
-### Step 3: Hasilkan Service Layer (`service.ts`)
-Gunakan Drizzle ORM untuk eksekusi query ke Supabase PostgreSQL:
-- Selalu filter `isNull(table.deletedAt)`.
-- Selalu sertakan pencatatan audit trail (`created_by`, `updated_by`).
-- Tangani pagination (`page`, `pageSize`) dan filter pencarian (`q`).
+### Step 2: Mutation (Tulis Data)
+```typescript
+import { mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
-### Step 4: Hasilkan Hono Route Handler (`routes.ts`)
-- Terapkan `authMiddleware` untuk validasi JWT.
-- Terapkan middleware `requirePermission('pegawai.create')`.
-- Jalankan validasi input Zod via `@hono/zod-validator`.
-- Kembalikan respons terstruktur:
-```json
-{
-  "success": true,
-  "message": "Data pegawai berhasil dibuat.",
-  "data": { ... },
-  "meta": { ... }
-}
+export const create = mutation({
+  args: {
+    name: v.string(),
+    slug: v.string(),
+    description: v.optional(v.string()),
+    categoryId: v.optional(v.id("categories")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) throw new Error("Not authenticated");
+
+    return await ctx.db.insert("communities", { ...args, createdBy: userId });
+  },
+});
 ```
 
-### Step 5: Tuliskan Dokumentasi OpenAPI / Usage Example
-Tulis contoh eksekusi API menggunakan `curl` atau JavaScript `fetch`.
+### Step 3: Pola Wajib
+1. **Autentikasi**: Selalu panggil `getAuthUserId(ctx)`; `throw new Error("Not authenticated")` bila `null`.
+2. **RBAC**: Untuk aksi yang dibatasi peran, cek field peran user (mis. `user.role`) sebelum mutasi; jangan pernah hanya mengandalkan client.
+3. **Soft Delete**: Mutation `remove` → `ctx.db.patch(id, { deletedAt: Date.now() })`, jangan `ctx.db.delete`.
+4. **Validasi**: Gunakan `v.object`, `v.optional`, `v.union(v.literal(...))`; semua argumen wajib memiliki validator.
+5. **Query ke data hasil insert**: `ctx.db.insert` mengembalikan id (`v.id`); gunakan `v.id("tableName")` sebagai tipe.
+
+### Step 4: Output
+Hasilkan API lengkap per entitas: `list`, `get`, `getBySlug`, `create`, `update` (gunakan `patch` dengan field optional), `remove` (soft delete).

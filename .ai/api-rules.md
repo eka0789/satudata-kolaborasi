@@ -4,7 +4,7 @@
 
 This document defines the API standards for this project.
 
-Every generated API must follow these rules.
+Every generated function must follow these rules.
 
 The primary goals are:
 
@@ -15,170 +15,108 @@ The primary goals are:
 - Security
 - Maintainability
 
-Do not generate APIs that violate these standards.
+Do not generate functions that violate these standards.
 
 ---
 
 # API Style
 
-Always use REST API.
+Convex exposes data via **functions** (queries, mutations, actions) — not REST endpoints.
 
-Use nouns instead of verbs.
+Functions are referenced by their path string, e.g. `api.projects.list`, `api.projects.create`.
 
-Good
+There is no URL versioning; types are enforced end-to-end by Convex.
 
-GET /users
-
-GET /users/:id
-
-POST /users
-
-PATCH /users/:id
-
-DELETE /users/:id
-
-Bad
-
-GET /getUsers
-
-POST /createUser
-
-POST /deleteUser
-
----
-
-# URL Convention
-
-Use lowercase.
-
-Use kebab-case.
+Use nouns for table names and verbs for the operation as the function name.
 
 Good
 
-/user-profiles
+`projects.list`
 
-/incoming-mails
+`projects.get`
 
-/outgoing-mails
+`projects.getBySlug`
+
+`projects.create`
+
+`projects.update`
+
+`projects.remove`
 
 Bad
 
-/UserProfile
+`getProjects`
 
-/getUsers
+`createProjectData`
 
----
-
-# Versioning
-
-Always prefix with version.
-
-Example
-
-/api/v1/users
-
-/api/v1/auth
-
-/api/v1/dashboard
+`projectStuff`
 
 ---
 
-# Request
+# Function Types
 
-Validate every request using Zod.
+Queries — read-only, for displaying data in the UI.
+
+Mutations — write operations (create/update/remove).
+
+Actions — for external side effects (file storage, third-party APIs).
+
+Always pick the narrowest type that fits.
+
+---
+
+# Validation
+
+Validate every argument using `v.object({ ... })`.
 
 Never trust client input.
 
-Validate
+Validate all fields:
 
-- body
-- params
-- query
-- headers (when needed)
+- body arguments
+- ids (`v.id("table")`)
+- enums (`v.union(v.literal("active"), ...)`)
+- optional values (`v.optional(...)`)
 
-Reject invalid requests immediately.
+Reject invalid requests immediately (Convex validates before the function runs).
 
 ---
 
 # Response Format
 
-Always return JSON.
+Return typed values directly — Convex serializes them for the client.
 
-Standard Response
+Never return unformatted internal data.
 
-{
-  "success": true,
-  "message": "Users retrieved successfully.",
-  "data": {},
-  "meta": {}
-}
-
-Error Response
-
-{
-  "success": false,
-  "message": "Validation failed.",
-  "errors": [],
-  "meta": {}
-}
-
-Never return raw database objects without formatting.
+For mutations that change one record, return the updated/created document id or the document.
 
 ---
 
-# HTTP Status Codes
+# Errors
 
-Always use proper status codes.
+Throw `ConvexError` for expected business errors with a safe, user-friendly message.
 
-200 OK
+Never expose stack traces.
 
-201 Created
+Never expose internal details.
 
-204 No Content
-
-400 Bad Request
-
-401 Unauthorized
-
-403 Forbidden
-
-404 Not Found
-
-409 Conflict
-
-422 Unprocessable Entity
-
-500 Internal Server Error
-
-Never return 200 for failed operations.
+Handle unexpected errors in `try/catch` and log them; rethrow `ConvexError` for the client.
 
 ---
 
 # CRUD Convention
 
-GET
+Query `list` — return multiple records (with optional filters/pagination).
 
-List resources
+Query `get` — return a single record by id.
 
-GET /users
+Query `getBySlug` — return a single record by unique slug.
 
-GET
+Mutation `create` — insert a record.
 
-Single resource
+Mutation `update` — patch fields.
 
-GET /users/:id
-
-POST
-
-Create resource
-
-PATCH
-
-Update partially
-
-DELETE
-
-Soft delete
+Mutation `remove` — soft delete (set `deletedAt`).
 
 Never hard delete unless explicitly required.
 
@@ -186,24 +124,9 @@ Never hard delete unless explicitly required.
 
 # Pagination
 
-Every list endpoint must support pagination.
+Every list query must support pagination for large datasets.
 
-Query
-
-?page=1
-
-?pageSize=20
-
-Response
-
-meta
-
-{
-    "page":1,
-    "pageSize":20,
-    "total":100,
-    "totalPages":5
-}
+Use Convex `paginate` (cursor-based) or `ctx.db.query(...).take(limit)` with offset.
 
 Never return thousands of records.
 
@@ -211,89 +134,57 @@ Never return thousands of records.
 
 # Sorting
 
-Support sorting.
+Support sorting by indexed fields.
 
-Example
+Use `.order("asc" | "desc")` on an indexed field.
 
-?sort=name
+Good
 
-?sort=-created_at
-
-Ascending
-
-sort=name
-
-Descending
-
-sort=-name
+`ctx.db.query("projects").order("desc")`
 
 ---
 
 # Filtering
 
-Support filtering.
+Support filtering by indexed fields.
 
 Example
 
-?status=active
+`{ status: "active", categoryId, provinceId }`
 
-?department=finance
-
-?role=admin
-
-Multiple filters are allowed.
+Filter in the query where possible; filter in memory only for small, non-indexed cases.
 
 ---
 
 # Searching
 
-Support search.
+Support search using `searchIndex` when available.
 
 Example
 
-?q=john
-
-Search should be case insensitive whenever possible.
-
----
-
-# Validation
-
-Always validate using Zod.
-
-Never manually validate.
-
-Validation belongs close to the feature.
-
-Example
-
-features/users/schema
+`ctx.db.query("communities").withSearchIndex("search_name", q => q.search("name", query))`
 
 ---
 
 # Authentication
 
-Always protect private endpoints.
+Always protect private functions.
 
-Use Supabase JWT.
+Use `getAuthUserId(ctx)` from `@convex-dev/auth/server`.
 
-Public routes
+Public functions
 
-/login
+`projects.list`
 
-/register
+`communities.get`
 
-/health
+Protected functions
 
-Protected routes
+`projects.create`
 
-/users
+`users.update`
 
-/profile
-
-/settings
-
-/admin
+`users.getCurrentUser`
 
 ---
 
@@ -301,23 +192,9 @@ Protected routes
 
 Support RBAC.
 
+Check the user's `role` or membership (e.g. `communityMembers`, `projectMembers`) before executing business logic.
+
 Never hardcode permissions.
-
-Permission names
-
-users.read
-
-users.create
-
-users.update
-
-users.delete
-
-roles.manage
-
-settings.manage
-
-Always check permission before executing business logic.
 
 ---
 
@@ -325,13 +202,9 @@ Always check permission before executing business logic.
 
 Never expose stack traces.
 
-Never expose SQL.
-
 Never expose secrets.
 
-Use centralized error handling.
-
-Return friendly messages.
+Throw `ConvexError` with friendly messages.
 
 Log detailed errors internally.
 
@@ -341,17 +214,12 @@ Log detailed errors internally.
 
 Log
 
-Authentication
-
-Create
-
-Update
-
-Delete
-
-Permission Changes
-
-Unexpected Errors
+- Authentication failures
+- Create
+- Update
+- Remove
+- Permission failures
+- Unexpected errors
 
 Do not log passwords.
 
@@ -361,23 +229,21 @@ Do not log access tokens.
 
 # Database
 
-Always use Drizzle ORM.
+Always use `ctx.db` — never raw external SQL.
 
-Never use raw SQL unless necessary.
+Use `ctx.db.insert`, `ctx.db.patch`, `ctx.db.delete`, `ctx.db.get`, `ctx.db.query`.
 
-Always parameterize queries.
-
-Use transactions for multiple operations.
+Use `ctx.db` within a function for multiple related operations (Convex functions are transactional).
 
 ---
 
 # Soft Delete
 
-Use deleted_at.
+Use `deletedAt` (number, epoch ms).
 
 Never remove records permanently unless requested.
 
-Exclude deleted records by default.
+Exclude deleted records by default in every query.
 
 ---
 
@@ -385,21 +251,16 @@ Exclude deleted records by default.
 
 Every business table includes
 
-created_at
+- `createdBy` (`v.id("users")`)
+- `deletedAt` (`v.optional(v.number())`)
 
-updated_at
-
-deleted_at
-
-created_by
-
-updated_by
+Convex provides `_creationTime` automatically (creation timestamp).
 
 ---
 
 # Id Convention
 
-Use UUID.
+Use Convex `Id` (`v.id("table")`).
 
 Never use incremental integer IDs.
 
@@ -407,27 +268,27 @@ Never use incremental integer IDs.
 
 # Naming
 
-Routes
+Tables — plural camelCase
 
-Plural nouns
+`users`
 
-/users
+`projects`
 
-/departments
+`communityMembers`
 
-/permissions
+Functions — camelCase verbs
 
-Functions
+`list`
 
-camelCase
+`getBySlug`
 
-Types
+`create`
 
-PascalCase
+`update`
 
-Files
+Types — PascalCase
 
-kebab-case
+Files — kebab-case
 
 ---
 
@@ -435,21 +296,15 @@ kebab-case
 
 Example
 
-features/
+src/convex/
 
-    users/
+    projects.ts
 
-        routes.ts
+    communities.ts
 
-        service.ts
+    users.ts
 
-        schema.ts
-
-        types.ts
-
-        mapper.ts
-
-        index.ts
+    schema.ts
 
 Do not organize by controllers.
 
@@ -461,13 +316,13 @@ Organize by feature.
 
 # Business Logic
 
-Keep route handlers thin.
+Keep functions focused.
 
-Route
+Validation
 
 ↓
 
-Validation
+Authorization
 
 ↓
 
@@ -483,81 +338,43 @@ Business rules must never be duplicated.
 
 # Performance
 
-Only select required columns.
+Use indexes for queries.
 
-Avoid SELECT *.
-
-Use indexes.
+Avoid loading entire tables when a filter or index suffices.
 
 Paginate large datasets.
 
-Avoid N+1 queries.
+Avoid N+1 queries — batch with `Promise.all` where appropriate.
 
 ---
 
 # Documentation
 
-Every endpoint must include
+Every function must be clearly named and follow the conventions above so its purpose, auth requirements, args, and return type are self-evident.
 
-Purpose
-
-Authentication
-
-Request Example
-
-Response Example
-
-Error Responses
-
-Query Parameters
-
-Path Parameters
-
----
-
-# OpenAPI
-
-Generate OpenAPI documentation for every endpoint.
-
-Include
-
-Description
-
-Parameters
-
-Request Body
-
-Responses
-
-Examples
+Keep functions small and well-named; add JSDoc only when the intent is not obvious.
 
 ---
 
 # AI Instructions
 
-Whenever generating an API:
+Whenever generating a Convex function:
 
-1. Explain the endpoint.
+1. Explain the function's purpose.
 
 2. Explain authentication requirements.
 
-3. Generate folder structure.
+3. Generate the arg validator (`v.object`).
 
-4. Generate Zod schema.
+4. Generate the query/mutation with `ctx.db`.
 
-5. Generate route.
+5. Ensure authorization checks.
 
-6. Generate service.
+6. Ensure soft-delete filtering.
 
-7. Generate database query.
+7. Ensure production-ready quality.
 
-8. Generate OpenAPI documentation.
-
-9. Generate usage example.
-
-10. Ensure production-ready quality.
-
-Never generate incomplete APIs.
+Never generate incomplete functions.
 
 Never leave TODO comments.
 

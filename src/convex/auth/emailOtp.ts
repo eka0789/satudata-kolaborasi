@@ -26,10 +26,13 @@ async function sendVerificationRequest({
   token: string;
   expires: Date;
 }) {
-  // Always surface the code server-side so the flow is usable in dev.
-  console.log(
-    `[email-otp] Verification code for ${identifier}: ${token} (expires ${expires.toISOString()})`,
-  );
+  // Surface the code server-side only outside production so the flow stays
+  // usable in dev; production must never log OTP codes.
+  if (process.env.NODE_ENV !== "production") {
+    console.log(
+      `[email-otp] Verification code for ${identifier}: ${token} (expires ${expires.toISOString()})`,
+    );
+  }
 
   // Deliver through the VLY email gateway when configured.
   const integrationKey = process.env.VLY_INTEGRATION_KEY;

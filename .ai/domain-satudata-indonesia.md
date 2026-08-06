@@ -44,6 +44,8 @@ Community ID bersifat UNIQUE.
 
 Community ID digunakan sebagai identitas utama seluruh relasi data.
 
+> Implementasi: disimpan pada field `communities.slug` (index `by_slug`), karena slug bersifat unik per dokumen Convex.
+
 ---
 
 ## 2. Status Verifikasi Komunitas
@@ -83,6 +85,8 @@ Komunitas yang belum VERIFIED tidak dapat:
 - membuka donasi
 - membuat event nasional
 
+> Catatan: status verifikasi belum diimplementasikan di schema saat ini; tambahkan field `verificationStatus` pada tabel `communities` bila fitur ini dikerjakan.
+
 ---
 
 ## 3. Jenis Komunitas
@@ -107,6 +111,8 @@ Enum:
 - FOUNDATION
 - PESANTREN
 - OTHER
+
+> Implementasi: dipetakan ke master data `categories` (`name` + `slug`, index `by_slug`), direferensikan via `communities.categoryId`.
 
 ---
 
@@ -143,9 +149,37 @@ Setiap komunitas wajib memiliki lokasi.
 
 Gunakan koordinat GPS.
 
+> Implementasi: master data `provinces` (`code` + `name`, index `by_code`). Referensi provinsi via `provinceId` pada `users`, `communities`, dan `projects`. Level wilayah lain (kabupaten dst.) dapat ditambahkan sebagai tabel master baru.
+
 ---
 
-# 🗄️ Domain Entities
+# 🗄️ Domain Entities (Implementasi Schema Convex)
+
+## users
+
+Master pengguna (diturunkan dari tabel auth Convex).
+
+Field domain:
+
+- `role` (`user` | `admin`)
+- `bio`
+- `occupation`
+- `provinceId`
+- `skills` (array string)
+- `isOnboarded`
+
+Setiap user dapat bergabung ke banyak komunitas.
+
+---
+
+## provinces & categories
+
+Master data referensi:
+
+- `provinces`: `code`, `name`, `region?` — index `by_code`
+- `categories`: `name`, `slug`, `description?` — index `by_slug`
+
+---
 
 ## communities
 
@@ -153,68 +187,99 @@ Master data komunitas.
 
 Field:
 
-- Community ID
-- Nama
-- Deskripsi
-- Logo
-- Banner
-- Kategori
-- Tahun Berdiri
-- Website
-- Email
-- WhatsApp
-- Instagram
-- Facebook
-- TikTok
-- Lokasi
-- Latitude
-- Longitude
-- Jumlah Anggota
-- Status Verifikasi
-- Status Aktif
+- `name`, `slug` (unix) — index `by_slug` + searchIndex `search_name`
+- `description?`, `imageUrl?`
+- `provinceId?`, `categoryId?`
+- `createdBy` (user id)
+- `isFeatured?`
 
 ---
 
-## users
+## communityMembers
 
-Master pengguna.
-
-Setiap user dapat bergabung ke banyak komunitas.
-
----
-
-## memberships
-
-Relasi user dengan komunitas.
+Relasi user dengan komunitas (replaces "memberships").
 
 Role:
 
-- Owner
-- Admin
-- Member
+- `admin`
+- `moderator`
+- `member`
+
+Index: `by_communityId`, `by_userId`, `by_community_user`.
+
+---
+
+## projects
+
+Proyek kolaborasi.
+
+Field:
+
+- `title`, `slug` — index `by_slug` + searchIndex `search_title`
+- `description?`, `imageUrl?`
+- `communityId?`, `categoryId?`, `provinceId?`
+- `status`: `draft` | `active` | `completed` | `archived` — index `by_status`
+- `startDate?`, `endDate?` (timestamp ms)
+- `tags?` (array string)
+- `createdBy`
+
+---
+
+## projectMembers
+
+Relasi user dengan proyek.
+
+Role:
+
+- `owner`
+- `contributor`
+- `viewer`
+
+---
+
+## events
+
+Event komunitas.
+
+Jenis (deskripsi):
+
+- Seminar
+- Workshop
+- Pelatihan
+- Webinar
 - Volunteer
+- Bakti Sosial
+- Festival
+
+Field:
+
+- `title` — searchIndex `search_title`
+- `description?`, `location?`, `imageUrl?`
+- `projectId?`, `communityId?`, `categoryId?`
+- `startTime` (wajib), `endTime?`
+- `capacity?`
+- `status`: `upcoming` | `ongoing` | `ended` | `cancelled`
+- `createdBy`
 
 ---
 
-## volunteers
+## eventAttendees
 
-Master data relawan.
+Relasi user dengan event.
 
-Data:
+Status:
 
-- Skill
-- Sertifikat
-- Pengalaman
-- Lokasi
-- Minat
+- `going`
+- `interested`
+- `cancelled`
 
 ---
 
-## community_needs
+## needs
 
-Marketplace kebutuhan komunitas.
+Marketplace kebutuhan komunitas (per proyek).
 
-Kategori:
+Kategori (deskripsi):
 
 - Volunteer
 - Donation
@@ -228,109 +293,38 @@ Kategori:
 - Infrastructure
 - Technology
 
-Status:
+Field:
 
-- OPEN
-- MATCHED
-- IN_PROGRESS
-- COMPLETED
-- CANCELLED
-
----
-
-## collaborations
-
-Proyek kolaborasi.
-
-Data:
-
-- Nama
-- Komunitas
-- Partner
-- Timeline
-- Progress
-- Milestone
-- Outcome
+- `projectId` (wajib) — index `by_projectId`
+- `title`, `description?`
+- `categoryId?`
+- `quantity?`
+- `skillsRequired?` (array string)
+- `status`: `open` | `in_progress` | `fulfilled` | `closed` — index `by_status`
+- `createdBy`
 
 ---
 
-## csr_programs
+## volunteers
 
-Program CSR perusahaan.
+Master data relawan (pendaftaran volunteer ke proyek/kebutuhan).
 
-Data:
+Field:
 
-- Perusahaan
-- Budget
-- Lokasi
-- Fokus
-- Kuota
-
----
-
-## grants
-
-Program Hibah.
-
-Data:
-
-- Pemberi Hibah
-- Persyaratan
-- Deadline
-- Nominal
+- `userId` (wajib) — index `by_userId`
+- `projectId?`, `needId?`
+- `message?`
+- `skills?` (array string)
+- `status`: `pending` | `accepted` | `declined` | `completed` — index `by_status`
 
 ---
 
-## events
+## notifications & onboarding
 
-Event komunitas.
+- `notifications`: realtime notifikasi per user (`type`, `title`, `body?`, `link?`, `read`) — index `by_user_read`.
+- `onboarding`: progres onboarding pengguna (`step`, `completed`, `data?`) — index `by_user_completed`.
 
-Jenis:
-
-- Seminar
-- Workshop
-- Pelatihan
-- Webinar
-- Volunteer
-- Bakti Sosial
-- Festival
-
----
-
-## impact_reports
-
-Laporan dampak.
-
-Metrik:
-
-- Jumlah Penerima Manfaat
-- Relawan
-- Donasi
-- Jam Pengabdian
-- Nilai Ekonomi
-- Foto Dokumentasi
-
----
-
-## notifications
-
-Realtime Notification.
-
----
-
-## files
-
-Dokumen.
-
-Jenis:
-
-- Proposal
-- LPJ
-- Foto
-- Video
-- Banner
-- Logo
-- Sertifikat
+> Fitur lain yang direncanakan (belum ada di schema): `auditLogs`, `impact_reports`, `csr_programs`, `grants`, `collaborations`, `files`. Tambahkan via `schema.ts` saat dikerjakan.
 
 ---
 
@@ -348,6 +342,8 @@ Hak akses:
 - CMS
 - Master Data
 
+> Implementasi: `users.role === "admin"`.
+
 ---
 
 ## COMMUNITY_ADMIN
@@ -362,6 +358,8 @@ Hak akses:
 - Member
 - Laporan
 
+> Implementasi: `communityMembers.role === "admin"`.
+
 ---
 
 ## COMMUNITY_MEMBER
@@ -371,6 +369,8 @@ Hak akses:
 - Bergabung komunitas
 - Mengikuti event
 - Melihat laporan
+
+> Implementasi: terdaftar di `communityMembers` (`role` apa pun).
 
 ---
 
@@ -382,6 +382,8 @@ Hak akses:
 - Mendaftar volunteer
 - Mengikuti kegiatan
 - Mendapat sertifikat
+
+> Implementasi: `volunteers` terdaftar ke proyek/kebutuhan.
 
 ---
 
@@ -442,19 +444,21 @@ AI digunakan untuk:
 
 AI harus bersifat modular sehingga dapat menggunakan OpenAI, Gemini, Claude, OpenRouter, Ollama, atau provider lain tanpa mengubah business logic aplikasi.
 
+> Integrasi AI direncanakan lewat HTTP action Convex (`http.ts`) atau scheduler; jangan menaruh API key di kode client.
+
 ---
 
 # 🔒 Security Rules
 
-- Semua data menggunakan UUID
-- Terapkan Row Level Security (RLS) Supabase
-- Gunakan Soft Delete
-- Audit Log untuk seluruh perubahan data
-- Role-based Authorization
-- Input Validation dengan Zod
-- File Upload Validation
-- Rate Limiting
-- Secure Environment Variables
+- Semua id dokumen menggunakan id Convex (bukan UUID manual).
+- Autentikasi wajib lewat `Convex Auth` — gunakan `getAuthUserId(ctx)` di setiap function.
+- Gunakan Soft Delete (`deletedAt`) untuk data bisnis.
+- Audit field wajib: `createdBy`, `updatedBy`, `deletedAt` (timestamp `_creationTime` bawaan Convex).
+- Role-based Authorization (lihat RBAC di atas).
+- Input Validation dengan validator `v.object` di sisi Convex + Zod di form.
+- File Upload Validation (Convex Storage tersedia, belum dipakai — pastikan validasi tipe/ukuran saat diimplementasikan).
+- Rate Limiting / batasan akses per user.
+- Secure Environment Variables (`envVars` di `convex.json`, bukan hardcoded).
 
 ---
 
@@ -465,7 +469,7 @@ Dashboard harus menampilkan:
 - Total Komunitas
 - Total Relawan
 - Total Event
-- Total Kolaborasi
+- Total Kolaborasi (proyek)
 - Total Program CSR
 - Total Hibah
 - Total Penerima Manfaat
@@ -490,9 +494,8 @@ Inspirasi:
 
 Gunakan:
 
-- Tailwind CSS
+- Tailwind CSS v4
 - shadcn/ui
-- Framer Motion
 - Responsive Design
 - Accessibility WCAG AA
 - Dark Mode
@@ -500,8 +503,6 @@ Gunakan:
 
 Seluruh implementasi harus mengikuti prinsip:
 
-- Clean Architecture
-- SOLID
 - Modular Feature-Based Structure
 - Production Ready
 - Type Safe
@@ -509,21 +510,19 @@ Seluruh implementasi harus mengikuti prinsip:
 - Scalable
 - Maintainable
 
-# AI Coding Guidelines
+---
+
+# 🤖 AI Coding Guidelines
 
 Saat mengembangkan aplikasi ini, AI wajib mengikuti aturan berikut:
 
-- Gunakan Next.js App Router.
-- Gunakan Server Components secara default.
-- Gunakan Client Components hanya jika diperlukan.
-- Seluruh data berasal dari Supabase.
-- Jangan membuat backend terpisah kecuali benar-benar diperlukan.
-- Gunakan Supabase Auth untuk autentikasi.
-- Gunakan Supabase RLS sebagai lapisan keamanan utama.
-- Semua CRUD harus menggunakan Server Actions atau Route Handlers.
+- Gunakan **React + Vite + React Router v7** untuk frontend.
+- Gunakan **Convex** sebagai satu-satunya backend & database — seluruh data query dan mutasi lewat `src/convex/*.ts`.
+- Gunakan **Convex Auth** untuk autentikasi (Email OTP + Anonymous); jangan membuat backend terpisah.
+- Setiap function yang mengakses data privat wajib memanggil `getAuthUserId(ctx)` dan memvalidasi akses.
+- Validasi input server-side dengan validator `v.object`; gunakan Zod untuk form (React Hook Form).
+- Gunakan `useQuery`/`useMutation` Convex untuk data real-time — tidak perlu TanStack Query.
 - Gunakan TypeScript strict mode.
-- Gunakan React Hook Form + Zod untuk validasi.
-- Gunakan TanStack Query hanya untuk data yang membutuhkan cache client-side.
+- Gunakan soft-delete (`deletedAt`) untuk seluruh data bisnis.
 - Hindari over-engineering.
-- Optimalkan untuk deployment di Vercel.
 - Seluruh fitur harus mobile-first dan siap production.

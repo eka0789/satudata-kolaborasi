@@ -1,7 +1,7 @@
-# AI Prompt: Initialize Enterprise Government Project
+# AI Prompt: Initialize Project (Setup & Konfigurasi Awal)
 
 ## Context & Purpose
-Gunakan prompt ini saat ingin menginisialisasi atau menscafhold struktur repositori Monorepo `my-starter-kit-gov` dari nol menggunakan Turborepo, pnpm workspaces, Hono backend, React Vite frontend, Drizzle ORM, Supabase, Tailwind CSS, dan shadcn/ui.
+Gunakan prompt ini saat ingin menginisialisasi atau menscaffold struktur proyek `satudata-kolaborasi` dari nol: single app Vite (React + TypeScript), backend Convex, ConvexAuth, Tailwind CSS v4, dan shadcn/ui.
 
 ---
 
@@ -9,40 +9,46 @@ Gunakan prompt ini saat ingin menginisialisasi atau menscafhold struktur reposit
 
 Saat mengeksekusi inisialisasi proyek, ikuti langkah-langkah berikut secara ketat:
 
-### Step 1: Analisis Konfigurasi Monorepo
-- Siapkan struktur `pnpm-workspace.yaml` yang menghubungkan `apps/*` dan `packages/*`.
-- Siapkan `turbo.json` dengan pipeline `build`, `lint`, `dev`, dan `db:generate`.
+### Step 1: Analisis Struktur Single App
+- Satu aplikasi Vite + React + TypeScript (bukan monorepo). Backend dan frontend dalam satu repo.
+- Backend ditulis di `src/convex/` (queries, mutations, actions, schema).
+- Semua konfigurasi di root: `vite.config.ts`, `tsconfig.json`, `tailwind` config, `convex.json`.
 
-### Step 2: Inisialisasi Apps & Packages
-1. **`apps/api`**:
-   - Framework Hono dengan router terpusat (`apps/api/src/router.ts`).
-   - Middleware autentikasi Supabase JWT, CORS, logger, dan error handler terpusat.
-2. **`apps/web`**:
-   - React 18 + Vite + TypeScript.
-   - Konfigurasi Tailwind CSS dan penyedia shadcn/ui primitives.
-   - Konfigurasi TanStack Query Client Provider dan React Router root.
-3. **`packages/database`**:
-   - Konfigurasi Supabase PostgreSQL Client & Drizzle ORM instance.
-   - Helper audit columns (`id`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`).
-4. **`packages/ui`**:
-   - Tempat komponen UI shadcn universal.
-5. **`packages/config`**:
-   - Konfigurasi bersama ESLint, Prettier, dan tsconfig.base.json.
+### Step 2: Inisialisasi Backend Convex
+1. **`src/convex/schema.ts`**:
+   - Definisikan seluruh table dengan validator `v` (`defineSchema({ ... })`).
+   - Gunakan `authTables` dari `@convex-dev/auth/server` untuk table auth (`users`, `sessions`, `authAccounts`, `authVerificationCodes`).
+   - Table bisnis wajib menyertakan kolom audit: `createdBy: v.id("users")` dan `deletedAt: v.optional(v.number())`.
+2. **`src/convex/auth.ts`**:
+   - Konfigurasi `ConvexAuth` dengan provider `EmailOTP` dan `Anonymous` (lihat `auth.config.ts`).
+3. **`src/convex/http.ts`**:
+   - Buat `httpRouter` dan panggil `auth.addHttpRoutes(http)`.
 
-### Step 3: Verifikasi Script Root
-Pastikan `package.json` root memiliki script utama:
+### Step 3: Inisialisasi Frontend React
+1. **`src/main.tsx`**:
+   - Bungkus aplikasi dengan `ConvexProvider` + `ConvexAuthProvider` (dari `@convex-dev/react`).
+   - Atur React Router v7 (data router, lazy routes) dan `Toaster` dari shadcn.
+   - Tambahkan `RouteLoading`, `RootErrorBoundary`, dan `RequireAuth` untuk halaman privat.
+2. **`src/hooks/use-auth.ts`**:
+   - Sediakan custom hook `useAuth()` yang membungkus `useConvexAuth` + `useAuthActions` + `useQuery(api.users.getCurrentUser)`.
+3. **Konfigurasi UI**:
+   - Setup Tailwind CSS v4 dan shadcn/ui primitives (`src/components/ui/*`).
+   - Ikon menggunakan `lucide-react`.
+
+### Step 4: Verifikasi Script Root
+Pastikan `package.json` memiliki script utama:
 ```json
 {
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "db:generate": "turbo run db:generate",
-    "db:push": "turbo run db:push"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy"
   }
 }
 ```
 
-### Step 4: Output Execution Summary
-Hasilkan laporan ringkas struktur folder yang telah dibuat dan instruksi cara menjalankan server dev (`pnpm install && pnpm dev`).
+### Step 5: Output Execution Summary
+Hasilkan laporan ringkas struktur folder yang telah dibuat dan instruksi cara menjalankan server dev (`npm install && npx convex dev && npm run dev`).

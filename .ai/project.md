@@ -1,8 +1,8 @@
 # Project Overview
 
-## 🏛️ Enterprise Government Starter Kit (`my-starter-kit-gov`)
+## 🏛️ SatuData Kolaborasi (SatuData Komunitas Indonesia)
 
-Starter Kit ini dirancang khusus untuk membangun aplikasi instansi pemerintah (Kementerian, Lembaga, Pemerintah Daerah) yang siap pakai, aman, dan mematuhi arsitektur SPBE (Sistem Pemerintahan Berbasis Elektronik).
+Aplikasi kolaborasi komunitas data untuk instansi pemerintah (Kementerian, Lembaga, Pemerintah Daerah) yang siap pakai, aman, dan mematuhi arsitektur SPBE (Sistem Pemerintahan Berbasis Elektronik) serta inisiatif Satu Data Indonesia.
 
 ---
 
@@ -17,11 +17,11 @@ Membangun aplikasi tingkat enterprise yang terukur dan aman menggunakan teknolog
 1. **Simplicity Over Complexity**: Arsitektur yang jelas tanpa tingkat abstraksi yang berlebihan.
 2. **Convention Over Configuration**: Mematuhi struktur folder dan penamaan baku yang konsisten.
 3. **AI-Friendly Architecture**: Struktur berkas dan instruksi `.ai` dirancang khusus agar AI Coding Assistant dapat bekerja dengan presisi tinggi.
-4. **Feature-First / Vertical Slice**: Setiap fitur bersifat otonom dan mengemas UI, API, Schema, Hooks, serta Logic sendiri.
+4. **Feature-First / Vertical Slice**: Setiap fitur bersifat otonom dan mengemas UI, Convex functions, Schema, Hooks, serta Logic sendiri.
 5. **Production Ready**: Memenuhi standar keamanan BSSN/OWASP, audit trail BPK, dan performa tinggi secara default.
 6. **Maintainable**: Kode dapat dipahami oleh pengembang baru dalam waktu satu hari.
-7. **Strong Type Safety**: Tidak ada `any`, validasi penuh dari database hingga komponen UI.
-8. **Fast Development**: Siklus iterasi cepat menggunakan Turborepo, Vite, Hono, dan Drizzle ORM.
+7. **Strong Type Safety**: Tidak ada `any`, validasi penuh dari validator `v` (Convex) hingga komponen UI.
+8. **Fast Development**: Siklus iterasi cepat menggunakan Vite dan Convex (reactive backend, tanpa server REST terpisah).
 
 ---
 

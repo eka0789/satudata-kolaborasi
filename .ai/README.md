@@ -1,15 +1,27 @@
-# Enterprise Government Starter Kit (`my-starter-kit-gov`)
+# SatuData Kolaborasi
 
-Starter Kit Enterprise Aplikasi Pemerintah Indonesia berbasis arsitektur **Feature-First Monorepo**, dibangun dengan teknologi modern, tipe terstruktur, aman, serta memenuhi standar Sistem Pemerintahan Berbasis Elektronik (SPBE).
+Platform kolaborasi komunitas nasional Indonesia berbasis **single-app Vite + React + Convex**, dengan sistem instruksi AI `.ai` (Rules, Prompts, dan Templates) agar AI Coding Assistant memproduksi kode produksi secara konsisten.
 
 ---
 
 ## 🎯 Tujuan Repositori
 
-Repositori ini dirancang sebagai sistem acuan (starter kit) untuk membangun aplikasi instansi pemerintah (Kementerian, Lembaga, Daerah / Pemda) dengan kriteria:
-1. **SIAP PAKAI (Production Ready)**: Mendukung fitur standar seperti e-Surat/Naskah Dinas Digital, SIMPEG/Manajemen ASN, E-Kinerja, Sistem Pengaduan/SP4N-LAPOR, hingga Layanan Publik.
-2. **STANDAR SPBE & BSSN**: Mengikuti pedoman keamanan informasi, audit trail, akses berbasis peran (RBAC), serta enkripsi data sensitif.
-3. **AI-FIRST DEVELOPMENT**: Dilengkapi dengan sistem konteks `.ai` (System Rules, Prompts Library, dan Code Templates) yang memungkinkan AI Coding Assistant memproduksi kode berkualitas produksi secara konsisten.
+1. **PLATFORM KOLABORASI KOMUNITAS**: Menghubungkan komunitas, relawan, proyek, event, dan kebutuhan di Indonesia — lihat `domain-satudata-indonesia.md`.
+2. **REAL-TIME & PRODUCTION-READY**: Backend Convex (reactive, database + functions terpadu) dengan autentikasi `Convex Auth` (Email OTP + Anonymous).
+3. **AI-FIRST DEVELOPMENT**: Direktori `.ai` berisi System Rules, Prompts Library, dan Code Templates agar AI konsisten menghasilkan kode bertipe aman.
+
+---
+
+## 🧰 Stack Teknologi (Ringkas)
+
+- **Frontend**: React 19 + TypeScript strict + Vite + React Router v7 (lazy routes)
+- **UI**: Tailwind CSS v4 + shadcn/ui (Radix + Lucide)
+- **Backend & DB**: Convex (`src/convex/` — schema + functions terpadu, reactive query)
+- **Auth**: Convex Auth — Email OTP + Anonymous (`src/convex/auth.ts`, `auth.config.ts`)
+- **Forms**: React Hook Form + `@hookform/resolvers` + Zod
+- **Package Manager**: npm
+
+> Detail lengkap di `.ai/tech-stack.md`.
 
 ---
 
@@ -20,23 +32,24 @@ Repositori ini dirancang sebagai sistem acuan (starter kit) untuk membangun apli
 ├── README.md               # Dokumentasi utama direktori .ai
 ├── constitution.md         # Kontrak kerja & urutan prioritas pembacaan AI
 ├── project.md              # Visi & prinsip dasar proyek
-├── tech-stack.md           # Stack teknologi resmi (Monorepo, Hono, React, Drizzle)
-├── architecture.md         # Arsitektur Feature-First Vertical Slice
-├── folder-structure.md     # Struktur direktori monorepo & aplikasi
-├── business-rules.md       # Aturan bisnis & regulasi standar pemerintah
+├── tech-stack.md           # Stack teknologi resmi (React, Vite, Convex, Convex Auth)
+├── architecture.md         # Arsitektur single-app + Convex feature-first
+├── folder-structure.md     # Struktur direktori aplikasi
+├── domain-satudata-indonesia.md # Konteks domain & aturan bisnis komunitas
+├── business-rules.md       # Aturan bisnis & regulasi
 ├── coding-standards.md     # Standar penulisan kode & type-safety
-├── backend.md              # Aturan pengembangan Backend (Hono + Zod + Drizzle)
+├── backend.md              # Aturan pengembangan Backend (Convex functions)
 ├── frontend.md             # Aturan pengembangan Frontend (React + Vite + shadcn)
-├── database.md             # Aturan database Supabase PostgreSQL & Drizzle ORM
-├── api-rules.md            # Standar REST API & OpenAPI
-├── security.md             # Keamanan RBAC, Audit Trail, & OWASP
-├── ui-guidelines.md        # Panduan UI/UX Enterprise Government
+├── database.md             # Aturan database Convex (schema, index, soft-delete)
+├── api-rules.md            # Standar function API Convex
+├── security.md             # Keamanan auth, RBAC, audit trail, & OWASP
+├── ui-guidelines.md        # Panduan UI/UX
 ├── workflow.md             # Alur pengembangan fitur
 ├── definition-of-done.md   # Checklist kriteria kelayakan fitur (DoD)
-├── agent-memory.md         # Catatan keputusan arsitektur jangka panjang
+├── agent-memory.md         # Catatan keputusan arsitektur jangka panjang (ADR)
 ├── prompt-library.md       # Daftar perintah prompt AI yang tersedia
-├── prompts/                # Instruksi prompt AI siap pakai (12 file)
-└── templates/              # Boilerplate & template kode produksi (9 file)
+├── prompts/                # Instruksi prompt AI siap pakai
+└── templates/              # Boilerplate & template kode
 ```
 
 ---
@@ -59,7 +72,8 @@ Sebelum AI Assistant menghasilkan atau memodifikasi kode, AI **WAJIB** membaca d
 12. `workflow.md`
 13. `definition-of-done.md`
 14. `business-rules.md`
-15. `agent-memory.md`
+15. `domain-satudata-indonesia.md`
+16. `agent-memory.md`
 
 ---
 
@@ -69,9 +83,9 @@ Sebelum AI Assistant menghasilkan atau memodifikasi kode, AI **WAJIB** membaca d
 Gunakan prompt siap pakai di `.ai/prompts/create-feature.md` atau salin template dari `.ai/templates/feature.md`.
 
 Contoh eksekusi perintah ke AI:
-> *"Tolong buatkan fitur pengajuan surat keluar (outgoing-mail) menggunakan instruksi dari `.ai/prompts/create-feature.md`."*
+> *"Tolong buatkan fitur kolaborasi baru menggunakan instruksi dari `.ai/prompts/create-feature.md`."*
 
-### 2. Pembuatan API Endpoint
+### 2. Pembuatan Convex Function / API
 Gunakan prompt `.ai/prompts/create-api.md` dan template `.ai/templates/api.md`.
 
 ### 3. Pembuatan Halaman UI & Tabel Data
@@ -79,9 +93,10 @@ Gunakan `.ai/prompts/create-page.md`, `.ai/prompts/create-table.md`, dan `.ai/te
 
 ---
 
-## 🛡️ Standar Wajib Aplikasi Pemerintah
+## 🛡️ Standar Wajib
 
-- **Validasi Identitas**: Penggunaan format NIP 18-digit (ASN/PNS) dan NIK 16-digit.
-- **Audit Trail BPK/BSSN**: Setiap tabel bisnis menyertakan `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`.
-- **Keamanan Data**: Penggunaan Soft Delete secara default, RBAC granular (contoh: `surat.read`, `surat.approve`), dan penanganan error tanpa ekspos detail database/SQL.
+- **Autentikasi**: Wajib melalui Convex Auth (`getAuthUserId`) — tidak ada endpoint tanpa identitas.
+- **Audit Trail**: Setiap dokumen bisnis menyertakan `createdBy`, `updatedBy`, dan `deletedAt`.
+- **Soft Delete**: Penghapusan data menggunakan soft-delete (`deletedAt`) secara default, bukan `delete` permanen.
+- **Keamanan Data**: RBAC granular, validasi server-side dengan `v.object`, dan penanganan error tanpa ekspos detail internal.
 - **Aksesibilitas & UI**: Tema bersih, kontras tinggi, mendukung Mode Gelap, dan ramah pembaca layar (Screen Reader).

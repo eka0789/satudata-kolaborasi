@@ -1,33 +1,68 @@
 # AI Prompt: Create Feature (Vertical Slice)
 
 ## Context & Purpose
-Gunakan prompt ini untuk membuat fitur vertikal komplit (End-to-End Vertical Slice Feature) yang mencakup Database Schema, Validation Zod, Backend API Hono, Custom React Hooks TanStack Query, dan Komponen UI Frontend.
+Gunakan prompt ini untuk membuat Fitur (Vertical Slice) baru dalam satu domain modul — mencakup backend Convex (schema + query/mutation), validasi `v.object`, dan frontend React (pages/components/hooks).
 
 ---
 
 ## 🤖 AI Instructions
 
-Saat mengeksekusi instruksi pembuatan fitur, AI **WAJIB** membuat komponen berikut tanpa menyisakan TODO/placeholder:
+Saat membuat fitur baru, ikuti pola Vertical Slice berikut:
 
-### 1. Database Schema (`packages/database/schema/`)
-- Tentukan tabel Drizzle ORM dengan Primary Key UUID `defaultRandom()`.
-- Wajib sertakan 5 kolom audit: `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`.
-- Tentukan tipe DTO inferensi (`Select[Feature]`, `Insert[Feature]`).
+### Step 1: Definisikan Data Model di `src/convex/schema.ts`
+Tambah/ubah table di schema Convex dengan validator `v`:
+```typescript
+export const myFeature = defineTable({
+  name: v.string(),
+  description: v.optional(v.string()),
+  ownerId: v.optional(v.id("users")),
+  createdBy: v.id("users"),
+  deletedAt: v.optional(v.number()),
+})
+  .index("by_ownerId", ["ownerId"])
+  .index("by_createdAt", ["_creationTime"]),
+```
+- Wajib: `createdBy: v.id("users")` + `deletedAt: v.optional(v.number())`.
+- Gunakan `v.union(v.literal(...))` untuk enum status (contoh: `"draft" | "active" | "completed"`).
+- Jangan gunakan kolom `created_at`/`updated_at` — Convex sudah menyediakan `_creationTime`.
 
-### 2. Validation & Types (`features/[feature]/`)
-- `schema.ts`: Buat skema Zod untuk create (`create[Feature]Schema`), update (`update[Feature]Schema`), dan query filter (`query[Feature]Schema`).
-- `types.ts`: Ekstrak tipe TypeScript eksplisit dari skema Zod.
+### Step 2: Buat Backend `src/convex/[feature].ts`
+```typescript
+import { mutation, query } from "./_generated/server";
+import { v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
-### 3. Backend Service & Routes (`apps/api/src/features/[feature]/`)
-- `service.ts`: Buat fungsi pencarian (dengan pagination, search, filter), detail (by ID), insert, update, dan soft delete.
-- `routes.ts`: Terapkan Hono router dengan `authMiddleware`, `requirePermission`, validasi Zod body/query/params, dan response handler terstruktur.
+// Semua query/mutation wajib: v.object validator + getAuthUserId
+export const create = mutation({
+  args: {
+    name: v.string(),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) throw new Error("Not authenticated");
+    return await ctx.db.insert("myFeature", { ...args, createdBy: userId });
+  },
+});
+```
+- Gunakan `v.optional()` pada argumen yang tidak wajib.
+- Filter soft-delete di semua `list`/`get`/`getBySlug` (`.filter(q => q.eq(q.field("deletedAt"), undefined))`).
 
-### 4. Frontend Custom Hooks & Service (`apps/web/src/features/[feature]/`)
-- `services/[feature]-api.ts`: Fungsi API client (`fetch` / `axios` wrapper).
-- `hooks/use-[feature].ts`: Custom hook TanStack Query (`useQuery` untuk list/detail, `useMutation` untuk create/update/delete) dengan toast notification dan auto query invalidation.
+### Step 3: Buat Frontend Fitur di `src/features/[feature]/`
+1. **`pages/`**: Halaman List & Halaman Detail/Form.
+2. **`components/`:**
+   - Data table / card grid.
+   - Form (React Hook Form + Zod) untuk create/update.
+3. **`hooks/`:** Custom hook pembungkus `useQuery(api.[feature].list)` / `useMutation(api.[feature].create)`.
+4. **Import client**: `import { api } from "@/convex/_generated/api";`
 
-### 5. Frontend UI Pages & Components (`apps/web/src/features/[feature]/`)
-- `components/[Feature]Table.tsx`: Data Table shadcn/ui dengan search, sorting, pagination, dan action dropdown.
-- `components/[Feature]FormModal.tsx`: Form Modal React Hook Form + Zod.
-- `pages/[Feature]Page.tsx`: Halaman utama dengan Header, Breadcrumb, Button Tambah, Table, dan Form Modal.
-- Wajib dukung 5 state UI: **Loading (Skeleton)**, **Error**, **Empty**, **Responsive**, dan **Dark Mode**.
+### Step 4: Penanganan 5 State UI Wajib
+1. ⏳ **Loading State**: Skeleton loader.
+2. ❌ **Error State**: Alert + tombol Retry.
+3. 📭 **Empty State**: Ilustrasi/icon + "Belum ada data" + tombol aksi.
+4. 📱 **Responsive**: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`.
+5. 🌙 **Dark Mode**: `bg-background text-foreground border-border`.
+
+### Step 5: Verifikasi
+- Jalankan `npm run typecheck`, `npm run lint`, `npm run build`.
+- Pastikan `npx convex dev` berjalan tanpa error schema.

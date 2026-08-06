@@ -1,7 +1,7 @@
 # AI Prompt: Create Complex Form Component
 
 ## Context & Purpose
-Gunakan prompt ini untuk membuat Komponen Form Enterprise menggunakan React Hook Form, validasi Zod schema, shadcn/ui Form controls, serta penanganan feedback error dan loading state penyerahan data (*submitting*).
+Gunakan prompt ini untuk membuat Komponen Form Enterprise menggunakan React Hook Form, validasi Zod schema, shadcn/ui Form controls, serta penanganan feedback error dan loading state penyerahan data (*submitting*). Data dikirim ke Convex melalui `useMutation`.
 
 ---
 
@@ -27,13 +27,29 @@ const form = useForm<z.infer<typeof formSchema>>({
 ### Step 3: Implementasi Komponen Input UI shadcn
 Gunakan `<Form>`, `<FormField>`, `<FormItem>`, `<FormLabel>`, `<FormControl>`, `<FormDescription>`, `<FormMessage>` untuk setiap input:
 - Input Teks / Email / Angka.
-- Select Dropdown (dengan data dinamis).
+- Select Dropdown (dengan data dinamis dari Convex, mis. `useQuery(api.categories.list)`).
 - Date Picker (Calendar Popover).
 - Textarea untuk deskripsi/catatan.
 - Input File / File Upload Dropzone.
 
-### Step 4: Penanganan Feedback & Submitting
+### Step 4: Kirim Data ke Convex (`useMutation`)
+```typescript
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+const create = useMutation(api.projects.create);
+
+const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  await create(values); // validator Convex v.object akan memvalidasi ulang
+  toast.success("Data berhasil disimpan");
+  form.reset();
+};
+```
+- Untuk edit: panggil mutation `update` dengan id + field yang berubah.
+
+### Step 5: Penanganan Feedback & Submitting
 - Nonaktifkan tombol Submit dan tampilkan Spinner Loader saat `form.formState.isSubmitting === true`.
 - Tampilkan Toast Notification Sukses saat penyerahan data berhasil.
 - Tampilkan Error Message inline pada input yang bermasalah.
+- Tampilkan Toast Error jika mutation Convex melempar exception.
 - Sediakan Tombol Batal / Reset.
