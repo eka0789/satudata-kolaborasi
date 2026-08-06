@@ -12,6 +12,14 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const DashboardLayout = lazy(() => import("./components/dashboard/layout.tsx"));
+const Proyek = lazy(() => import("./pages/Proyek.tsx"));
+const Kegiatan = lazy(() => import("./pages/Kegiatan.tsx"));
+const Komunitas = lazy(() => import("./pages/Komunitas.tsx"));
+const Pencarian = lazy(() => import("./pages/Pencarian.tsx"));
+const Notifikasi = lazy(() => import("./pages/Notifikasi.tsx"));
+const Pengaturan = lazy(() => import("./pages/Pengaturan.tsx"));
+const Admin = lazy(() => import("./pages/Admin.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -129,10 +137,19 @@ createRoot(document.getElementById("root")!).render(
                 path="/dashboard"
                 element={
                   <RequireAuth>
-                    <Dashboard />
+                    <DashboardLayout />
                   </RequireAuth>
                 }
-              />
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="cari" element={<Pencarian />} />
+                <Route path="proyek" element={<Proyek />} />
+                <Route path="kegiatan" element={<Kegiatan />} />
+                <Route path="komunitas" element={<Komunitas />} />
+                <Route path="notifikasi" element={<Notifikasi />} />
+                <Route path="pengaturan" element={<Pengaturan />} />
+                <Route path="admin" element={<Admin />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -1,24 +1,15 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import {
   CalendarDays,
   FolderKanban,
-  Home,
-  LogOut,
-  Menu,
   Plus,
-  Settings,
   Sparkles,
   Users,
-  X,
 } from "lucide-react";
 import { useQuery } from "convex/react";
 
-import logo from "@/assets/logo.svg";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,20 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-
-/* ---------------------------------------------------------------------------
- * Constants
- * ------------------------------------------------------------------------- */
-
-const NAV_ITEMS = [
-  { label: "Beranda", href: "/dashboard", icon: Home },
-  { label: "Proyek Saya", href: "/dashboard/proyek", icon: FolderKanban },
-  { label: "Kegiatan", href: "/dashboard/kegiatan", icon: CalendarDays },
-  { label: "Komunitas", href: "/dashboard/komunitas", icon: Users },
-  { label: "Pengaturan", href: "/dashboard/pengaturan", icon: Settings },
-] as const;
 
 const STAT_CARDS = [
   { key: "communities", label: "Komunitas", icon: Users, color: "bg-indigo-500/10 text-indigo-500" },
@@ -50,146 +28,6 @@ const STAT_CARDS = [
   { key: "events", label: "Kegiatan", icon: CalendarDays, color: "bg-amber-500/10 text-amber-500" },
   { key: "unreadCount", label: "Notifikasi", icon: Sparkles, color: "bg-violet-500/10 text-violet-500" },
 ] as const;
-
-/* ---------------------------------------------------------------------------
- * Sidebar
- * ------------------------------------------------------------------------- */
-
-function Sidebar({
-  open,
-  setOpen,
-  currentPath,
-}: {
-  open: boolean;
-  setOpen: (v: boolean) => void;
-  currentPath: string;
-}) {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
-
-  const initials = (name?: string) =>
-    name
-      ?.split(/\s+/)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase() ?? "")
-      .join("") ?? "?";
-
-  return (
-    <>
-      {/* Mobile overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out lg:relative",
-          open ? "w-[260px] translate-x-0" : "w-[260px] -translate-x-full lg:w-[72px] lg:translate-x-0",
-        )}
-      >
-        {/* Logo area */}
-        <div className="flex h-14 items-center gap-3 border-b border-border px-4">
-          <Link to="/" className="shrink-0">
-            <img
-              src={logo}
-              alt="Satu Data Kolaborasi"
-              width={28}
-              height={28}
-              className="rounded-md"
-            />
-          </Link>
-          {open && (
-            <span className="truncate text-sm font-semibold tracking-tight">
-              Satu Data<span className="text-indigo-500"> Kolaborasi</span>
-            </span>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto shrink-0 lg:hidden"
-            onClick={() => setOpen(false)}
-          >
-            <X className="size-4" />
-          </Button>
-        </div>
-
-        {/* Nav links */}
-        <ScrollArea className="flex-1 px-3 py-3">
-          <nav className="flex flex-col gap-1">
-            {NAV_ITEMS.map((item) => {
-              const isActive =
-                item.href === "/dashboard"
-                  ? currentPath === "/dashboard"
-                  : currentPath.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                >
-                  <item.icon className="size-4 shrink-0" />
-                  {open && <span>{item.label}</span>}
-                </Link>
-              );
-            })}
-          </nav>
-        </ScrollArea>
-
-        {/* User area */}
-        <div className="border-t border-border px-3 py-3">
-          {open ? (
-            <div className="flex items-center gap-3">
-              <Avatar className="size-8 shrink-0">
-                <AvatarImage src={user?.image} />
-                <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
-                  {initials(user?.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{user?.name ?? "Pengguna"}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {user?.email ?? ""}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 shrink-0"
-                onClick={handleSignOut}
-                title="Keluar"
-              >
-                <LogOut className="size-3.5" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <Avatar className="size-9 shrink-0">
-                <AvatarImage src={user?.image} />
-                <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
-                  {initials(user?.name)}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-          )}
-        </div>
-      </aside>
-    </>
-  );
-}
 
 /* ---------------------------------------------------------------------------
  * Overview stats
@@ -441,8 +279,6 @@ function EventCard({
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const currentPath = "/dashboard";
 
   const dashboard = useQuery(api.dashboard.getDashboard);
 
@@ -461,191 +297,163 @@ export default function Dashboard() {
       : null;
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} currentPath={currentPath} />
+    <>
+      {/* Welcome */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="mb-8"
+      >
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Selamat datang{user?.name ? `, ${user.name}` : ""}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Kelola proyek, komunitas, dan kegiatan data Anda di sini.
+        </p>
+      </motion.div>
 
-      {/* Main content area */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile header */}
-        <header className="flex h-14 items-center gap-4 border-b border-border px-4 lg:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="shrink-0"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="size-5" />
-          </Button>
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Logo" width={24} height={24} className="rounded-md" />
-            <span className="text-sm font-semibold tracking-tight">
-              Satu Data<span className="text-indigo-500"> Kolaborasi</span>
-            </span>
-          </Link>
-        </header>
+      {/* Stats */}
+      <OverviewCards stats={stats} />
 
-        {/* Page content */}
-        <ScrollArea className="flex-1">
-          <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-            {/* Welcome */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="mb-8"
-            >
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Selamat datang{user?.name ? `, ${user.name}` : ""}
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Kelola proyek, komunitas, dan kegiatan data Anda di sini.
-              </p>
-            </motion.div>
-
-            {/* Stats */}
-            <OverviewCards stats={stats} />
-
-            {/* Two columns: Communities + Projects on left, Events on right */}
-            <div className="mt-8 grid gap-8 lg:grid-cols-3">
-              {/* Left column */}
-              <div className="space-y-8 lg:col-span-2">
-                {/* Communities */}
-                <section>
-                  <SectionHeader
-                    title="Komunitas Saya"
-                    count={communities?.length ?? 0}
-                    emptyLabel="komunitas"
-                  />
-                  <div className="mt-4 space-y-3">
-                    {!communities ? (
-                      Array.from({ length: 2 }).map((_, i) => (
-                        <div key={i} className="flex items-start gap-4 rounded-xl border border-border/70 p-4">
-                          <Skeleton className="size-10 rounded-lg" />
-                          <div className="flex-1 space-y-2">
-                            <Skeleton className="h-4 w-1/2" />
-                            <Skeleton className="h-3 w-3/4" />
-                          </div>
-                        </div>
-                      ))
-                    ) : communities.length === 0 ? (
-                      <EmptySection
-                        icon={Users}
-                        title="Belum bergabung dengan komunitas"
-                        description="Temukan komunitas data di daerahmu atau buat komunitas baru."
-                      />
-                    ) : (
-                      communities.slice(0, 4).map((c) => (
-                        <CommunityCard
-                          key={c._id}
-                          name={c.name}
-                          description={c.description}
-                          isFeatured={c.isFeatured}
-                        />
-                      ))
-                    )}
+      {/* Two columns: Communities + Projects on left, Events on right */}
+      <div className="mt-8 grid gap-8 lg:grid-cols-3">
+        {/* Left column */}
+        <div className="space-y-8 lg:col-span-2">
+          {/* Communities */}
+          <section>
+            <SectionHeader
+              title="Komunitas Saya"
+              count={communities?.length ?? 0}
+              emptyLabel="komunitas"
+            />
+            <div className="mt-4 space-y-3">
+              {!communities ? (
+                Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="flex items-start gap-4 rounded-xl border border-border/70 p-4">
+                    <Skeleton className="size-10 rounded-lg" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-3 w-3/4" />
+                    </div>
                   </div>
-                </section>
-
-                {/* Projects */}
-                <section>
-                  <SectionHeader
-                    title="Proyek Saya"
-                    count={projects?.length ?? 0}
-                    emptyLabel="proyek"
+                ))
+              ) : communities.length === 0 ? (
+                <EmptySection
+                  icon={Users}
+                  title="Belum bergabung dengan komunitas"
+                  description="Temukan komunitas data di daerahmu atau buat komunitas baru."
+                />
+              ) : (
+                communities.slice(0, 4).map((c) => (
+                  <CommunityCard
+                    key={c._id}
+                    name={c.name}
+                    description={c.description}
+                    isFeatured={c.isFeatured}
                   />
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {!projects ? (
-                      Array.from({ length: 2 }).map((_, i) => (
-                        <div key={i} className="space-y-3 rounded-xl border border-border/70 p-4">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-10 w-full" />
-                          <Skeleton className="h-4 w-1/2" />
-                        </div>
-                      ))
-                    ) : projects.length === 0 ? (
-                      <div className="sm:col-span-2">
-                        <EmptySection
-                          icon={FolderKanban}
-                          title="Belum ada proyek"
-                          description="Mulai proyek kolaborasi data pertamamu atau bergabung dengan proyek yang ada."
-                        />
-                      </div>
-                    ) : (
-                      projects.slice(0, 4).map((p) => (
-                        <ProjectCard
-                          key={p._id}
-                          title={p.title}
-                          status={p.status}
-                          description={p.description}
-                          tags={p.tags}
-                        />
-                      ))
-                    )}
-                  </div>
-                </section>
-              </div>
-
-              {/* Right column — Events */}
-              <aside className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold tracking-tight">Kegiatan</h3>
-                  <Badge variant="secondary" className="text-[10px]">
-                    {events?.length ?? 0}
-                  </Badge>
-                </div>
-
-                <div className="space-y-3">
-                  {!events ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="flex items-center gap-4 rounded-xl border border-border/70 p-4">
-                        <Skeleton className="size-10 rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-3 w-2/3" />
-                        </div>
-                      </div>
-                    ))
-                  ) : events.length === 0 ? (
-                    <Card className="border-dashed border-border/70 shadow-none">
-                      <CardContent className="flex flex-col items-center py-8 text-center">
-                        <CalendarDays className="size-8 text-muted-foreground" />
-                        <p className="mt-3 text-sm font-medium">Belum ada kegiatan</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Ikuti kegiatan komunitas terdekat.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    events.slice(0, 5).map((e) => (
-                      <EventCard
-                        key={e._id}
-                        title={e.title}
-                        startTime={e.startTime}
-                        location={e.location}
-                        status={e.status}
-                      />
-                    ))
-                  )}
-                </div>
-
-                {/* Platform stats summary */}
-                <Card className="border-border/70 shadow-none">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">Statistik Platform</CardTitle>
-                    <CardDescription className="text-xs">
-                      Total data publik di Satu Data Kolaborasi
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <PlatformStats />
-                  </CardContent>
-                </Card>
-              </aside>
+                ))
+              )}
             </div>
-          </main>
-        </ScrollArea>
+          </section>
+
+          {/* Projects */}
+          <section>
+            <SectionHeader
+              title="Proyek Saya"
+              count={projects?.length ?? 0}
+              emptyLabel="proyek"
+            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {!projects ? (
+                Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="space-y-3 rounded-xl border border-border/70 p-4">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))
+              ) : projects.length === 0 ? (
+                <div className="sm:col-span-2">
+                  <EmptySection
+                    icon={FolderKanban}
+                    title="Belum ada proyek"
+                    description="Mulai proyek kolaborasi data pertamamu atau bergabung dengan proyek yang ada."
+                  />
+                </div>
+              ) : (
+                projects.slice(0, 4).map((p) => (
+                  <ProjectCard
+                    key={p._id}
+                    title={p.title}
+                    status={p.status}
+                    description={p.description}
+                    tags={p.tags}
+                  />
+                ))
+              )}
+            </div>
+          </section>
+        </div>
+
+        {/* Right column — Events */}
+        <aside className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold tracking-tight">Kegiatan</h3>
+            <Badge variant="secondary" className="text-[10px]">
+              {events?.length ?? 0}
+            </Badge>
+          </div>
+
+          <div className="space-y-3">
+            {!events ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 rounded-xl border border-border/70 p-4">
+                  <Skeleton className="size-10 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                </div>
+              ))
+            ) : events.length === 0 ? (
+              <Card className="border-dashed border-border/70 shadow-none">
+                <CardContent className="flex flex-col items-center py-8 text-center">
+                  <CalendarDays className="size-8 text-muted-foreground" />
+                  <p className="mt-3 text-sm font-medium">Belum ada kegiatan</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Ikuti kegiatan komunitas terdekat.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              events.slice(0, 5).map((e) => (
+                <EventCard
+                  key={e._id}
+                  title={e.title}
+                  startTime={e.startTime}
+                  location={e.location}
+                  status={e.status}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Platform stats summary */}
+          <Card className="border-border/70 shadow-none">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Statistik Platform</CardTitle>
+              <CardDescription className="text-xs">
+                Total data publik di Satu Data Kolaborasi
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PlatformStats />
+            </CardContent>
+          </Card>
+        </aside>
       </div>
-    </div>
+    </>
   );
 }
 
