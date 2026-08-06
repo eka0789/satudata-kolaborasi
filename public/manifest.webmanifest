@@ -1,1 +1,17 @@
-[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 0 characters. Read it separately or use code_search for the relevant section.
+{
+  "name": "SatuData Kolaborasi",
+  "short_name": "SatuData",
+  "description": "Platform kolaborasi data terbuka untuk komunitas, proyek, dan relawan.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "256x256",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

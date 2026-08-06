@@ -1,1 +1,32 @@
-[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 0 characters. Read it separately or use code_search for the relevant section.
+import { Loader2 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
+  size?: "sm" | "default" | "lg";
+}
+
+const sizeClasses = {
+  sm: "size-4",
+  default: "size-6",
+  lg: "size-8",
+};
+
+/**
+ * Spinning loader used for loading states (see README: prefer this over
+ * skeletons).
+ */
+function Spinner({ size = "default", className, ...props }: SpinnerProps) {
+  return (
+    <div
+      className={cn("flex items-center justify-center", className)}
+      role="status"
+      aria-label="Loading"
+      {...props}
+    >
+      <Loader2 className={cn("animate-spin text-muted-foreground", sizeClasses[size])} />
+    </div>
+  );
+}
+
+export { Spinner };

@@ -1,1 +1,11 @@
-[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 0 characters. Read it separately or use code_search for the relevant section.
+"use client";
+
+import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
+
+const Collapsible = CollapsiblePrimitive.Root;
+
+const CollapsibleTrigger = CollapsiblePrimitive.CollapsibleTrigger;
+
+const CollapsibleContent = CollapsiblePrimitive.CollapsibleContent;
+
+export { Collapsible, CollapsibleTrigger, CollapsibleContent };

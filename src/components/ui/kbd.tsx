@@ -1,1 +1,23 @@
-[FILE_TOO_LARGE]: The combined read_files output exceeded the 100,000 character hard limit. This file was truncated after 0 characters. Read it separately or use code_search for the relevant section.
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+/**
+ * Renders a keyboard key hint.
+ */
+const Kbd = React.forwardRef<
+  HTMLSpanElement,
+  React.HTMLAttributes<HTMLSpanElement>
+>(({ className, ...props }, ref) => (
+  <kbd
+    ref={ref}
+    className={cn(
+      "pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100",
+      className,
+    )}
+    {...props}
+  />
+));
+Kbd.displayName = "Kbd";
+
+export { Kbd };
