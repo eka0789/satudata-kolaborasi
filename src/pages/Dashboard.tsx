@@ -2,16 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import {
-  AlertCircle,
-  ArrowRight,
   CalendarDays,
   FolderKanban,
   Home,
-  LayoutDashboard,
   LogOut,
   Menu,
   Plus,
-  Search,
   Settings,
   Sparkles,
   Users,
@@ -32,7 +28,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -59,8 +54,6 @@ const STAT_CARDS = [
 /* ---------------------------------------------------------------------------
  * Sidebar
  * ------------------------------------------------------------------------- */
-
-const SIDEBAR_WIDTH = 260;
 
 function Sidebar({
   open,
@@ -447,8 +440,7 @@ function EventCard({
  * ------------------------------------------------------------------------- */
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const currentPath = "/dashboard";
 

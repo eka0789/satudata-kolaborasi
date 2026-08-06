@@ -18,13 +18,6 @@ export const getCurrentUser = query({
   },
 });
 
-export const getUser = query({
-  args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    return await ctx.db.get(args.userId);
-  },
-});
-
 /** Update the current user's public profile fields. */
 export const updateProfile = mutation({
   args: {
