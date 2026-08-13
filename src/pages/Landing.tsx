@@ -19,6 +19,7 @@ import logo from "@/assets/logo.svg";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FeatureCard } from "@/components/ui/feature-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -58,7 +59,7 @@ function Navbar() {
             className="rounded-md ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-105"
           />
           <span className="text-[15px] font-semibold tracking-tight text-white">
-            Satu Data<span className="text-indigo-400"> Kolaborasi</span>
+            Satu Data<span className="text-primary"> Kolaborasi</span>
           </span>
         </Link>
 
@@ -100,7 +101,7 @@ function Navbar() {
               <Button
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="bg-indigo-500 text-white shadow-lg shadow-indigo-500/25 hover:bg-indigo-400"
+                className="bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary/90"
               >
                 Mulai Berkolaborasi
               </Button>
@@ -124,7 +125,7 @@ function Hero() {
       {/* Decorative background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_35%,black,transparent)]" />
-        <div className="absolute -top-40 left-1/2 h-[34rem] w-[34rem] -translate-x-[80%] rounded-full bg-indigo-600/25 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 h-[34rem] w-[34rem] -translate-x-[80%] rounded-full bg-primary/25 blur-3xl" />
         <div className="absolute -top-24 left-1/2 h-[28rem] w-[28rem] translate-x-[10%] rounded-full bg-emerald-500/15 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-72 w-72 rounded-full bg-violet-600/20 blur-3xl" />
       </div>
@@ -137,7 +138,7 @@ function Hero() {
       >
         <motion.div variants={fadeUp} className="flex justify-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium tracking-wide text-slate-300 backdrop-blur">
-            <Sparkles className="size-3.5 text-indigo-400" />
+            <Sparkles className="size-3.5 text-primary" />
             Platform Kolaborasi Data Terbuka untuk Indonesia
           </span>
         </motion.div>
@@ -147,7 +148,7 @@ function Hero() {
           className="mt-7 text-balance text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl"
         >
           Satu Data,{" "}
-          <span className="bg-gradient-to-r from-indigo-300 via-sky-300 to-emerald-300 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary/80 via-sky-300 to-emerald-300 bg-clip-text text-transparent">
             Kolaborasi Terbuka
           </span>
           , untuk Semua
@@ -169,7 +170,7 @@ function Hero() {
           <Button
             size="lg"
             onClick={() => navigate("/auth")}
-            className="group w-full bg-indigo-500 px-8 text-white shadow-xl shadow-indigo-500/30 transition-all hover:bg-indigo-400 hover:shadow-indigo-400/40 sm:w-auto"
+            className="group w-full bg-primary px-8 text-white shadow-xl shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-primary/40 sm:w-auto"
           >
             Mulai Berkolaborasi
             <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-0.5" />
@@ -195,7 +196,7 @@ function Hero() {
             <Globe2 className="size-4 text-sky-400" /> Data terbuka lintas daerah
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Users className="size-4 text-indigo-400" /> Kolaborasi lintas sektor
+            <Users className="size-4 text-primary" /> Kolaborasi lintas sektor
           </span>
         </motion.div>
       </motion.div>
@@ -231,7 +232,7 @@ function AnimatedNumber({ value }: { value: number }) {
 
 const STAT_ITEMS = [
   { key: "provinces", label: "Provinsi Terjangkau", icon: Landmark, color: "text-sky-400 bg-sky-500/10" },
-  { key: "communities", label: "Komunitas Aktif", icon: Users, color: "text-indigo-400 bg-indigo-500/10" },
+  { key: "communities", label: "Komunitas Aktif", icon: Users, color: "text-primary bg-primary/10" },
   { key: "projects", label: "Proyek Data", icon: FolderKanban, color: "text-violet-400 bg-violet-500/10" },
   { key: "volunteers", label: "Relawan Terlibat", icon: HandHeart, color: "text-emerald-400 bg-emerald-500/10" },
   { key: "events", label: "Kegiatan", icon: CalendarDays, color: "text-amber-400 bg-amber-500/10" },
@@ -298,7 +299,7 @@ function SectionHeading({
       variants={fadeUp}
       className="mx-auto max-w-2xl text-center"
     >
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
         {eyebrow}
       </p>
       <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
@@ -310,6 +311,54 @@ function SectionHeading({
         </p>
       )}
     </motion.div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * How It Works
+ * ------------------------------------------------------------------------- */
+
+function HowItWorks() {
+  return (
+    <section className="scroll-mt-24 px-4 py-24 sm:px-6 sm:py-28 lg:px-8">
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-80px" }}
+        className="mx-auto max-w-7xl"
+      >
+        <SectionHeading
+          eyebrow="Cara Kerja"
+          title="Mulai kolaborasi dalam tiga langkah"
+          description="Dari bergabung hingga berkontribusi — semua bisa dilakukan dalam hitungan menit."
+        />
+        <div className="mt-14 grid gap-6 sm:grid-cols-3">
+          {[
+            {
+              icon: Users,
+              color: "from-primary to-blue-500",
+              title: "1. Bergabung",
+              description: "Buat akun sebagai individu, komunitas, atau institusi. Gratis dan tanpa komitmen.",
+            },
+            {
+              icon: FolderKanban,
+              color: "from-accent to-teal-500",
+              title: "2. Jelajahi & Buat",
+              description: "Temukan proyek data atau buat inisiatif baru. Ajak kolaborator dari berbagai daerah.",
+            },
+            {
+              icon: HandHeart,
+              color: "from-amber-500 to-orange-500",
+              title: "3. Berkontribusi",
+              description: "Bagikan data, ikuti kegiatan, dan bangun dampak nyata untuk Indonesia.",
+            },
+          ].map((item, i) => (
+            <FeatureCard key={item.title} {...item} index={i} />
+          ))}
+        </div>
+      </motion.div>
+    </section>
   );
 }
 
@@ -363,7 +412,7 @@ function FeaturedProjects() {
               <motion.article
                 key={project._id}
                 variants={fadeUp}
-                className="group relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/10"
+                className="group relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10"
               >
                 <div className="flex items-center justify-between gap-3">
                   <Badge
@@ -373,10 +422,10 @@ function FeaturedProjects() {
                     <span className="mr-1.5 size-1.5 rounded-full bg-emerald-500" />
                     Aktif
                   </Badge>
-                  <FolderKanban className="size-4 text-slate-300 transition-colors group-hover:text-indigo-400" />
+                  <FolderKanban className="size-4 text-slate-300 transition-colors group-hover:text-primary" />
                 </div>
 
-                <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-indigo-600">
+                <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-primary">
                   {project.title}
                 </h3>
                 <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
@@ -388,7 +437,7 @@ function FeaturedProjects() {
                     {project.tags.slice(0, 4).map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors group-hover:bg-indigo-50 group-hover:text-indigo-600"
+                        className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors group-hover:bg-primary/5 group-hover:text-primary"
                       >
                         #{tag}
                       </span>
@@ -425,10 +474,10 @@ function FeaturedCommunities() {
       .join("");
 
   const avatarStyles = [
-    "from-indigo-500 to-violet-500",
+    "from-primary to-blue-500",
     "from-emerald-500 to-teal-500",
     "from-sky-500 to-cyan-500",
-    "from-amber-500 to-orange-500",
+"from-accent to-teal-500",
   ];
 
   return (
@@ -470,21 +519,21 @@ function FeaturedCommunities() {
               <motion.article
                 key={community._id}
                 variants={fadeUp}
-                className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/10"
+                className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10"
               >
                 <div
                   className={`inline-flex size-11 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold text-white ${avatarStyles[i % avatarStyles.length]}`}
                 >
                   {initials(community.name)}
                 </div>
-                <h3 className="mt-4 line-clamp-1 font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-indigo-600">
+                <h3 className="mt-4 line-clamp-1 font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-primary">
                   {community.name}
                 </h3>
                 <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
                   {community.description ?? "Komunitas kolaborasi data di Indonesia."}
                 </p>
                 {community.isFeatured && (
-                  <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-indigo-500">
+                  <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-primary">
                     <Sparkles className="size-3.5" />
                     Komunitas unggulan
                   </div>
@@ -555,13 +604,13 @@ function UpcomingEvents() {
               <motion.div
                 key={event._id}
                 variants={fadeUp}
-                className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/10"
+                className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10"
               >
-                <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-md shadow-indigo-500/25">
+                <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-500 text-white shadow-md shadow-primary/25">
                   <CalendarDays className="size-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-indigo-600">
+                  <h3 className="truncate font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-primary">
                     {event.title}
                   </h3>
                   <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -581,7 +630,7 @@ function UpcomingEvents() {
                   size="sm"
                   variant="outline"
                   onClick={() => navigate("/auth")}
-                  className="shrink-0 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                  className="shrink-0 border-primary/30 text-primary hover:bg-primary/5"
                 >
                   Ikut serta
                 </Button>
@@ -635,21 +684,21 @@ function CtaSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.7, ease: EASE }}
-        className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl bg-[#0a0e1c] px-6 py-16 text-center shadow-2xl shadow-indigo-900/20 sm:px-12 sm:py-20"
+        className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl bg-[#0a0e1c] px-6 py-16 text-center shadow-2xl shadow-primary/20 sm:px-12 sm:py-20"
       >
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-indigo-600/30 blur-3xl" />
+          <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
           <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
         </div>
 
         <div className="relative">
-          <Badge className="border-white/10 bg-white/5 text-indigo-300">
+          <Badge className="border-white/10 bg-white/5 text-primary/80">
             Bergabung gratis, selamanya
           </Badge>
           <h2 className="mx-auto mt-6 max-w-2xl text-balance text-3xl font-bold tracking-tight text-white sm:text-5xl">
             Siap menjadi bagian dari gerakan{" "}
-            <span className="bg-gradient-to-r from-indigo-300 via-sky-300 to-emerald-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary/80 via-sky-300 to-emerald-300 bg-clip-text text-transparent">
               Satu Data
             </span>
             ?
@@ -668,7 +717,7 @@ function CtaSection() {
               <Button
                 size="lg"
                 onClick={() => navigate("/dashboard")}
-                className="bg-indigo-500 px-8 text-white shadow-xl shadow-indigo-500/30 hover:bg-indigo-400"
+                className="bg-primary px-8 text-white shadow-xl shadow-primary/30 hover:bg-primary/90"
               >
                 Buka Dashboard
                 <ArrowRight className="ml-2 size-4" />
@@ -678,7 +727,7 @@ function CtaSection() {
                 <Button
                   size="lg"
                   onClick={() => navigate("/auth")}
-                  className="bg-indigo-500 px-8 text-white shadow-xl shadow-indigo-500/30 hover:bg-indigo-400"
+                  className="bg-primary px-8 text-white shadow-xl shadow-primary/30 hover:bg-primary/90"
                 >
                   Masuk / Daftar
                   <ArrowRight className="ml-2 size-4" />
@@ -749,6 +798,7 @@ export default function Landing() {
       <main>
         <Hero />
         <StatsBand />
+        <HowItWorks />
         <FeaturedProjects />
         <FeaturedCommunities />
         <UpcomingEvents />
