@@ -1,26 +1,33 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, SearchX } from "lucide-react";
 
 export default function NotFound() {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen flex flex-col"
+      className="flex min-h-screen flex-col items-center justify-center bg-background p-6"
     >
-
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="max-w-5xl mx-auto relative px-4">
-          <div className="flex items-center justify-center min-h-[200px]">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-              <p className="text-lg text-gray-600">Page Not Found</p>
-            </div>
-          </div>
-        </div>
+      <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
+        <SearchX className="size-8 text-muted-foreground" />
       </div>
+      <h1 className="mt-6 text-4xl font-bold tracking-tight">404</h1>
+      <p className="mt-2 text-lg text-muted-foreground">Halaman tidak ditemukan</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Halaman yang kamu cari mungkin telah dipindahkan atau dihapus.
+      </p>
+      <Button
+        className="mt-8 cursor-pointer"
+        onClick={() => navigate("/dashboard")}
+      >
+        <ArrowLeft className="mr-2 size-4" />
+        Kembali ke Dashboard
+      </Button>
     </motion.div>
   );
 }

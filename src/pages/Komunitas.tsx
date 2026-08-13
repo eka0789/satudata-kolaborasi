@@ -5,18 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Empty } from "@/components/ui/empty";
 import { Users, Star } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function Komunitas() {
   const communities = useQuery(api.communities.list, {});
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Komunitas</h1>
-        <p className="text-sm text-muted-foreground">
-          Temukan dan bergabung dengan komunitas yang sesuai dengan minatmu.
-        </p>
-      </header>
+      <PageHeader
+        title="Komunitas"
+        description="Temukan dan bergabung dengan komunitas yang sesuai dengan minatmu."
+      />
 
       {communities === undefined ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -41,7 +40,7 @@ export default function Komunitas() {
           {communities.map((community) => (
             <Card
               key={community._id}
-              className="transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
+              className="transition-colors hover:border-primary/30 hover:shadow-sm hover:bg-primary/5"
             >
               <CardContent className="flex h-full flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-2">

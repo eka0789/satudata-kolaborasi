@@ -7,10 +7,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Empty } from "@/components/ui/empty";
 import { CalendarDays, MapPin, Users } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
@@ -26,13 +27,6 @@ const STATUS_LABEL: Record<EventStatus, string> = {
   ongoing: "Berlangsung",
   ended: "Selesai",
   cancelled: "Dibatalkan",
-};
-
-const STATUS_COLOR: Record<EventStatus, string> = {
-  upcoming: "bg-indigo-500/10 text-indigo-500",
-  ongoing: "bg-emerald-500/10 text-emerald-500",
-  ended: "bg-muted text-muted-foreground",
-  cancelled: "bg-rose-500/10 text-rose-500",
 };
 
 function formatDateTime(timestamp: number) {
@@ -56,12 +50,10 @@ export default function Kegiatan() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Kegiatan</h1>
-        <p className="text-sm text-muted-foreground">
-          Agenda kegiatan dan acara kolaborasi terbaru.
-        </p>
-      </header>
+      <PageHeader
+        title="Kegiatan"
+        description="Agenda kegiatan dan acara kolaborasi terbaru."
+      />
 
       <Tabs
         value={tab}
@@ -102,17 +94,12 @@ export default function Kegiatan() {
           {events.map((event) => (
             <Card
               key={event._id}
-              className="transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
+              className="transition-colors hover:border-primary/30 hover:shadow-sm hover:bg-primary/5"
             >
               <CardContent className="flex h-full flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold leading-snug">{event.title}</h3>
-                  <Badge
-                    className={STATUS_COLOR[event.status]}
-                    variant="outline"
-                  >
-                    {STATUS_LABEL[event.status]}
-                  </Badge>
+                  <StatusBadge status={event.status} label={STATUS_LABEL[event.status]} dot />
                 </div>
                 {event.description ? (
                   <p className="line-clamp-3 text-sm text-muted-foreground">

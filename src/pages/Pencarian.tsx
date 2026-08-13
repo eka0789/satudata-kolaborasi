@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Empty } from "@/components/ui/empty";
 import { Search, FolderKanban, CalendarDays, Users } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 function useDebouncedValue(value: string, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -28,21 +29,24 @@ export default function Pencarian() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Pencarian</h1>
-        <p className="text-sm text-muted-foreground">
-          Cari proyek, kegiatan, dan komunitas.
-        </p>
-      </header>
+      <PageHeader
+        title="Pencarian"
+        description="Cari proyek, kegiatan, dan komunitas."
+      />
 
-      <div className="relative">
+<div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ketik kata kunci…"
-          className="pl-9"
+          placeholder="Ketik kata kunci..."
+          className="pl-9 pr-16"
         />
+        {query === "" && (
+          <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded border bg-muted px-1.5 text-[10px] font-medium text-muted-foreground sm:flex">
+            /
+          </kbd>
+        )}
       </div>
 
       {debouncedQuery.trim() === "" ? (
@@ -113,7 +117,7 @@ function ResultSection({
         {results.map((name, i) => (
           <Card
             key={i}
-            className="transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
+            className="transition-colors hover:border-primary/30 hover:bg-primary/5"
           >
             <CardContent className="p-4">
               <p className="line-clamp-2 text-sm font-medium">{name}</p>
