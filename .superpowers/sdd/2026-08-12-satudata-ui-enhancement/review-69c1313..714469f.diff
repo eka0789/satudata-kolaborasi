@@ -1,0 +1,20 @@
+﻿# Review package: 69c1313..714469f
+
+## Commits
+714469f feat(css): update design tokens with blue-primary/teal-accent okLCH palette and font families
+
+## Files changed
+ src/index.css | 103 ++++++++++++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 60 insertions(+), 43 deletions(-)
+
+## Diff
+diff --git a/src/index.css b/src/index.css
+index 1234567..abcdef0 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -1,3 +1,5 @@
++@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap');
++
+ @import "tailwindcss";
+ 
+ @custom-variant dark (&:is(.dark *));

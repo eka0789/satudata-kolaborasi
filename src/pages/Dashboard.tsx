@@ -20,13 +20,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatCard } from "@/components/ui/stat-card";
 import { cn } from "@/lib/utils";
 
 const STAT_CARDS = [
-  { key: "communities", label: "Komunitas", icon: Users, color: "bg-indigo-500/10 text-indigo-500" },
-  { key: "projects", label: "Proyek", icon: FolderKanban, color: "bg-emerald-500/10 text-emerald-500" },
-  { key: "events", label: "Kegiatan", icon: CalendarDays, color: "bg-amber-500/10 text-amber-500" },
-  { key: "unreadCount", label: "Notifikasi", icon: Sparkles, color: "bg-violet-500/10 text-violet-500" },
+  { key: "communities", label: "Komunitas", icon: Users, color: "bg-primary/10 text-primary" },
+  { key: "projects", label: "Proyek", icon: FolderKanban, color: "bg-accent/10 text-accent" },
+  { key: "events", label: "Kegiatan", icon: CalendarDays, color: "bg-amber-500/10 text-amber-600" },
+  { key: "unreadCount", label: "Notifikasi", icon: Sparkles, color: "bg-violet-500/10 text-violet-600" },
 ] as const;
 
 /* ---------------------------------------------------------------------------
@@ -37,25 +38,13 @@ function OverviewCards({ stats }: { stats: Record<string, number> | null }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {STAT_CARDS.map((card) => (
-        <Card key={card.key} className="border-border/70 shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {card.label}
-            </CardTitle>
-            <div className={cn("flex size-9 items-center justify-center rounded-lg", card.color)}>
-              <card.icon className="size-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            {stats === null ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <p className="text-2xl font-bold tracking-tight">
-                {stats[card.key]?.toLocaleString("id-ID") ?? 0}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <StatCard
+          key={card.key}
+          title={card.label}
+          value={stats?.[card.key]?.toLocaleString("id-ID") ?? "0"}
+          icon={card.icon}
+          iconColor={card.color}
+        />
       ))}
     </div>
   );
@@ -137,7 +126,7 @@ function CommunityCard({
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group flex items-start gap-4 rounded-xl border border-border/70 p-4 transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
+      className="group flex items-start gap-4 rounded-xl border border-border/70 p-4 transition-colors hover:border-primary/30 hover:bg-primary/5"
     >
       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 text-xs font-bold text-white">
         {initials(name)}
@@ -185,7 +174,7 @@ function ProjectCard({
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group flex flex-col gap-3 rounded-xl border border-border/70 p-4 transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
+      className="group flex flex-col gap-3 rounded-xl border border-border/70 p-4 transition-colors hover:border-primary/30 hover:bg-primary/5"
     >
       <div className="flex items-center justify-between gap-2">
         <p className="truncate text-sm font-semibold">{title}</p>
@@ -249,7 +238,7 @@ function EventCard({
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group flex items-center gap-4 rounded-xl border border-border/70 p-4 transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
+      className="group flex items-center gap-4 rounded-xl border border-border/70 p-4 transition-colors hover:border-primary/30 hover:bg-primary/5"
     >
       <div className="flex size-10 shrink-0 flex-col items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white">
         <CalendarDays className="size-4" />

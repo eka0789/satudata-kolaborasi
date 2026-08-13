@@ -7,10 +7,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Empty } from "@/components/ui/empty";
 import { FolderKanban, CalendarDays, MapPin } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
@@ -28,13 +29,6 @@ const STATUS_LABEL: Record<ProjectStatus, string> = {
   archived: "Arsip",
 };
 
-const STATUS_COLOR: Record<ProjectStatus, string> = {
-  draft: "bg-muted text-muted-foreground",
-  active: "bg-indigo-500/10 text-indigo-500",
-  completed: "bg-emerald-500/10 text-emerald-500",
-  archived: "bg-muted text-muted-foreground",
-};
-
 export default function Proyek() {
   const [tab, setTab] = useState<(typeof STATUS_OPTIONS)[number]["value"]>(
     "all",
@@ -46,12 +40,10 @@ export default function Proyek() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Proyek</h1>
-        <p className="text-sm text-muted-foreground">
-          Jelajahi proyek kolaborasi sosial yang sedang berjalan.
-        </p>
-      </header>
+      <PageHeader
+        title="Proyek"
+        description="Jelajahi proyek kolaborasi sosial yang sedang berjalan."
+      />
 
       <Tabs
         value={tab}
@@ -92,17 +84,12 @@ export default function Proyek() {
           {projects.map((project) => (
             <Card
               key={project._id}
-              className="transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
+              className="transition-colors hover:border-primary/30 hover:shadow-sm hover:bg-primary/5"
             >
               <CardContent className="flex h-full flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold leading-snug">{project.title}</h3>
-                  <Badge
-                    className={STATUS_COLOR[project.status]}
-                    variant="outline"
-                  >
-                    {STATUS_LABEL[project.status]}
-                  </Badge>
+                  <StatusBadge status={project.status} label={STATUS_LABEL[project.status]} dot />
                 </div>
                 {project.description ? (
                   <p className="line-clamp-3 text-sm text-muted-foreground">

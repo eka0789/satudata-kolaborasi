@@ -84,9 +84,9 @@ export function Sidebar({
             />
           </Link>
           {open && (
-            <span className="truncate text-sm font-semibold tracking-tight">
-              Satu Data<span className="text-indigo-500"> Kolaborasi</span>
-            </span>
+<span className="truncate text-sm font-semibold tracking-tight">
+                Satu Data<span className="text-primary"> Kolaborasi</span>
+              </span>
           )}
           <Button
             variant="ghost"
@@ -112,12 +112,15 @@ export function Sidebar({
                   to={item.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                     isActive
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
+                  )}
                   <item.icon className="size-4 shrink-0" />
                   {open && <span>{item.label}</span>}
                 </Link>

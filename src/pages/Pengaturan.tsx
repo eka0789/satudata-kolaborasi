@@ -17,7 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserRound } from "lucide-react";
+import { UserRound, Wrench, Bell } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function Pengaturan() {
   const { user } = useAuth();
@@ -79,17 +80,15 @@ export default function Pengaturan() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Pengaturan</h1>
-        <p className="text-sm text-muted-foreground">
-          Kelola informasi profil publikmu.
-        </p>
-      </header>
+      <PageHeader
+        title="Pengaturan"
+        description="Kelola informasi profil publikmu."
+      />
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <UserRound className="size-5 text-indigo-500" />
+            <UserRound className="size-5 text-primary" />
             Profil
           </CardTitle>
           <CardDescription>

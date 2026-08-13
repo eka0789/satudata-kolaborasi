@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Empty } from "@/components/ui/empty";
 import { Bell, Check, CheckCheck } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 function formatRelative(timestamp: number) {
   const seconds = Math.round((timestamp - Date.now()) / 1000);
@@ -29,23 +30,21 @@ export default function Notifikasi() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">Notifikasi</h1>
-          <p className="text-sm text-muted-foreground">
-            Pemberitahuan terbaru untuk aktivitasmu.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!notifications || unreadCount === 0}
-          onClick={() => void markAllRead({})}
-        >
-          <CheckCheck className="mr-2 size-3.5" />
-          Tandai dibaca
-        </Button>
-      </header>
+      <PageHeader
+        title="Notifikasi"
+        description="Pemberitahuan terbaru untuk aktivitasmu."
+        action={
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!notifications || unreadCount === 0}
+            onClick={() => void markAllRead({})}
+          >
+            <CheckCheck className="mr-2 size-3.5" />
+            Tandai dibaca
+          </Button>
+        }
+      />
 
       {notifications === undefined ? (
         <div className="space-y-3">
@@ -72,22 +71,27 @@ export default function Notifikasi() {
               className={
                 notification.read
                   ? "opacity-70"
-                  : "border-indigo-200 bg-indigo-50/30"
+                  : "border-primary/30 bg-primary/5"
               }
             >
               <CardContent className="flex items-start justify-between gap-4 p-4">
-                <div className="min-w-0 space-y-1">
-                  <p className="text-sm font-medium leading-snug">
-                    {notification.title}
-                  </p>
-                  {notification.body ? (
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {notification.body}
+                <div className="flex items-start gap-3">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <Bell className="size-4 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium leading-snug">
+                      {notification.title}
                     </p>
-                  ) : null}
-                  <p className="text-xs text-muted-foreground">
-                    {formatRelative(notification._creationTime)}
-                  </p>
+                    {notification.body ? (
+                      <p className="line-clamp-2 text-sm text-muted-foreground">
+                        {notification.body}
+                      </p>
+                    ) : null}
+                    <p className="text-xs text-muted-foreground">
+                      {formatRelative(notification._creationTime)}
+                    </p>
+                  </div>
                 </div>
                 {!notification.read ? (
                   <Button

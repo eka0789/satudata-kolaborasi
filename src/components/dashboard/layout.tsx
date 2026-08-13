@@ -30,7 +30,7 @@ export default function DashboardLayout() {
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="Logo" width={24} height={24} className="rounded-md" />
             <span className="text-sm font-semibold tracking-tight">
-              Satu Data<span className="text-indigo-500"> Kolaborasi</span>
+              Satu Data<span className="text-primary"> Kolaborasi</span>
             </span>
           </Link>
         </header>

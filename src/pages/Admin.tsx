@@ -4,6 +4,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Empty } from "@/components/ui/empty";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
 import {
   ShieldAlert,
   Users,
@@ -14,11 +16,11 @@ import {
 } from "lucide-react";
 
 const OVERVIEW_CARDS = [
-  { key: "userCount", label: "Pengguna", icon: Users, color: "bg-indigo-500/10 text-indigo-500" },
-  { key: "communityCount", label: "Komunitas", icon: UsersRound, color: "bg-emerald-500/10 text-emerald-500" },
-  { key: "projectCount", label: "Proyek", icon: FolderKanban, color: "bg-amber-500/10 text-amber-500" },
-  { key: "eventCount", label: "Kegiatan", icon: CalendarDays, color: "bg-violet-500/10 text-violet-500" },
-  { key: "needCount", label: "Kebutuhan", icon: PackageOpen, color: "bg-rose-500/10 text-rose-500" },
+  { key: "userCount", label: "Pengguna", icon: Users, color: "bg-primary/10 text-primary" },
+  { key: "communityCount", label: "Komunitas", icon: UsersRound, color: "bg-accent/10 text-accent" },
+  { key: "projectCount", label: "Proyek", icon: FolderKanban, color: "bg-amber-500/10 text-amber-600" },
+  { key: "eventCount", label: "Kegiatan", icon: CalendarDays, color: "bg-violet-500/10 text-violet-600" },
+  { key: "needCount", label: "Kebutuhan", icon: PackageOpen, color: "bg-rose-500/10 text-rose-600" },
 ] as const;
 
 export default function Admin() {
@@ -41,12 +43,10 @@ export default function Admin() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
-        <p className="text-sm text-muted-foreground">
-          Ringkasan statistik platform.
-        </p>
-      </header>
+      <PageHeader
+        title="Admin"
+        description="Ringkasan statistik platform."
+      />
 
       {overview === undefined ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -62,21 +62,13 @@ export default function Admin() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {OVERVIEW_CARDS.map(({ key, label, icon: Icon, color }) => (
-            <Card key={key}>
-              <CardContent className="flex flex-col gap-3 p-5">
-                <span
-                  className={`inline-flex size-10 items-center justify-center rounded-[10px] ${color}`}
-                >
-                  <Icon className="size-5" />
-                </span>
-                <div>
-                  <p className="text-sm text-muted-foreground">{label}</p>
-                  <p className="text-2xl font-bold">
-                    {overview[key].toLocaleString("id-ID")}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              key={key}
+              title={label}
+              value={overview[key].toLocaleString("id-ID")}
+              icon={Icon}
+              iconColor={color}
+            />
           ))}
         </div>
       )}
